@@ -22,12 +22,15 @@ _______________|  speedtest : ping, download and upload speeds.
                  $ speedtest --log  #  Will cat logfile with latest result.
 
 
-  Dependencies:  speedtest-cli.py ( https://github.com/sivel/speedtest-cli )
-                 curl             ( to directly get the latest version.    )
+  Dependencies:  curl [ Used to download the following Python script: ]
+                 speedtest-cli.py ( https://github.com/sivel/speedtest-cli )
+                               ^tested on Python versions 2.4 through 3.4. 
 
-
-CHANGE LOG  Origin: https://github.com/rsvp/speedtest-linux
+CHANGE LOG  ORIGIN: https://github.com/rsvp/speedtest-linux 
+2015-03-17  Clarify some comments.
 2015-03-13  This script ALWAYS retrieves the latest dependent code.
                Currently it is version 0.3.2 from the primary source.
 
 ```
+
+

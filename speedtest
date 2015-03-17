@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2015-03-13
+#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2015-03-17
 #
 # _______________|  speedtest : ping, download and upload speeds.
 #                               Commandline using speedtest.net resources.
@@ -20,10 +20,12 @@
 #
 #                   $ speedtest --log  #  Will cat logfile with latest result.
 #
-#    Dependencies:  speedtest-cli.py ( https://github.com/sivel/speedtest-cli )
-#                   curl             ( to directly get the latest version.    )
+#    Dependencies:  curl [ Used to download the following Python script: ]
+#                   speedtest-cli.py ( https://github.com/sivel/speedtest-cli )
+#                                 ^tested on Python versions 2.4 through 3.4. 
 
-#  CHANGE LOG  Origin: https://github.com/rsvp/speedtest-linux 
+#  CHANGE LOG  ORIGIN: https://github.com/rsvp/speedtest-linux 
+#  2015-03-17  Clarify some comments.
 #  2015-03-13  This script ALWAYS retrieves the latest dependent code.
 #                 Currently it is version 0.3.2 from the primary source.
 
@@ -83,18 +85,16 @@ favorite='1335'
 #        Use --list to find your favorite.
 
 logf="/home/${USER}/var/log/net/speedtest.log"
-#    ^rename log file for your personal use; for --log option.
+#    ^RENAME log file for your personal use; for --log option.
+#     Sample first line HEADER for CSV: Date, Time, Ping, Down, Up
 
 
-     #  #  STATIC LOCAL VERSION which could get outdated:
-     #  main='/home/yaya/room/git/ils/speedtest-cli/speedtest-cli.py'
-     #    ^local copy possibly out-dated!
-     #  $main --server $remoteserver --simple 
-
-
+#  Relying on a STATIC LOCAL VERSION may get outdated, so
 #  DOWNLOAD and execute LATEST PRIMARY VERSION of speedtest-cli.py:
 source='https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest_cli.py'
-
+#  If @sivel disappears for any reason, try mirror @rsvp.
+#
+#  Retrieve source and place it in memory with execute permission:
 curl -kL --silent $source  >  $memf  \
      ||  die "curl unable to retrieve $program source code."  113
 chmod 755 $memf
