@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2015-03-17
+#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2015-03-19
 #
 # _______________|  speedtest : ping, download and upload speeds.
 #                               Commandline using speedtest.net resources.
@@ -8,7 +8,7 @@
 #           Usage:  speedtest [--log|--simple|--verbose|--list|--fav|--version]
 #
 #                   Takes about a minute for results to appear.
-#                   For logfile, the variable $logf can be modified.
+#                   For logfile, directory variable $logdir should be modified.
 #
 #        Examples:  $ speedtest --simple 
 #                   Ping: 22.602 ms
@@ -20,11 +20,14 @@
 #
 #                   $ speedtest --log  #  Will cat logfile with latest result.
 #
+#                   $ speedtest --log tmp.log  #  else default: speedtest.log
+#
 #    Dependencies:  curl [ Used to download the following Python script: ]
 #                   speedtest-cli.py ( https://github.com/sivel/speedtest-cli )
 #                                 ^tested on Python versions 2.4 through 3.4. 
 
 #  CHANGE LOG  ORIGIN: https://github.com/rsvp/speedtest-linux 
+#  2015-03-19  Second argument names log file. Directory's existence tested.
 #  2015-03-17  Clarify some comments.
 #  2015-03-13  This script ALWAYS retrieves the latest dependent code.
 #                 Currently it is version 0.3.2 from the primary source.
@@ -49,6 +52,8 @@ set -u
 #    Example of default VARIABLE ASSIGNMENT:  arg1=${1:-'foo'}
 
 arg1=${1:-'NULL'}
+arg2=${2:-'speedtest.log'}
+#         ^default name for logfile, see $logf below.
 
 program=${0##*/}   #  similar to using basename
 memf=$( mktemp /dev/shm/88_${program}_tmp.XXXXXXXXXX )
@@ -72,7 +77,7 @@ die () {
      cat $errf >&2
      cleanup -1  &&   warn "$1"  &&  exit $status
 } #--------------------------------------------------------------------
-trap "die 'SIG disruption, but cleanup finished.' 114" 1 2 3 15
+trap "die 'SIG disruption: but finish needs about one minute.' 114" 1 2 3 15
 #    Cleanup after INTERRUPT: 1=SIGHUP, 2=SIGINT, 3=SIGQUIT, 15=SIGTERM
 trap "die 'unhandled ERR via trap, but cleanup finished.' 116" ERR
 #    Cleanup after command failure unless it's part of a test clause.
@@ -84,9 +89,14 @@ favorite='1335'
 #        ^DreamHost in Los Angeles for --fav option.
 #        Use --list to find your favorite.
 
-logf="/home/${USER}/var/log/net/speedtest.log"
-#    ^RENAME log file for your personal use; for --log option.
-#     Sample first line HEADER for CSV: Date, Time, Ping, Down, Up
+logdir="/home/${USER}/var/log/net"
+#    ^RENAME log directory for your personal use; for --log option.
+
+[ -d "$logdir" ]  ||  mkdir -p "$logdir"  ||  die "fail creating $logdir" 117
+#  Check directory's existence, else create it.
+
+logf="$logdir/$arg2"
+#     Suggested first line HEADER for CSV: Date, Time, Ping, Down, Up
 
 
 #  Relying on a STATIC LOCAL VERSION may get outdated, so
@@ -125,6 +135,10 @@ case "$arg1" in
   --version)  $memf --version  ||  true                                       ;;
      --list)  $memf --list                                                    ;;
               #       list of worldwide servers.
+
+  --default)  echo "Default log directory: $logdir "
+              echo "Default log file:      $arg2 "
+              echo "--fav test server:     $favorite"                         ;;
 
           *)  die "undefined arg: $arg1"  115                                 ;;
 esac
