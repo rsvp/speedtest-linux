@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2015-03-19
+#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2016-01-18
 #
 # _______________|  speedtest : ping, download and upload speeds.
 #                               Commandline using speedtest.net resources.
@@ -27,6 +27,8 @@
 #                                 ^tested on Python versions 2.4 through 3.4. 
 
 #  CHANGE LOG  ORIGIN: https://github.com/rsvp/speedtest-linux 
+#  2016-01-18  Fix issue #2 by using $HOME instead of /home/${USER} for logdir.
+#                 @oeolartep: $USER was unbound variable in cron jobs.
 #  2015-03-19  Second argument names log file. Directory's existence tested.
 #  2015-03-17  Clarify some comments.
 #  2015-03-13  This script ALWAYS retrieves the latest dependent code.
@@ -89,8 +91,8 @@ favorite='1335'
 #        ^DreamHost in Los Angeles for --fav option.
 #        Use --list to find your favorite.
 
-logdir="/home/${USER}/var/log/net"
-#    ^RENAME log directory for your personal use; for --log option.
+logdir="$HOME/var/log/net"
+#      ^RENAME log directory for your personal use; for --log option.
 
 [ -d "$logdir" ]  ||  mkdir -p "$logdir"  ||  die "fail creating $logdir" 117
 #  Check directory's existence, else create it.
