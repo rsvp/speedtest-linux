@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2016-01-18
+#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2017-03-06
 #
 # _______________|  speedtest : ping, download and upload speeds.
 #                               Commandline using speedtest.net resources.
@@ -23,10 +23,10 @@
 #                   $ speedtest --log tmp.log  #  else default: speedtest.log
 #
 #    Dependencies:  curl [ Used to download the following Python script: ]
-#                   speedtest-cli.py ( https://github.com/sivel/speedtest-cli )
-#                                 ^tested on Python versions 2.4 through 3.4. 
-
+#                   speedtest.py ( https://github.com/sivel/speedtest-cli )
+#
 #  CHANGE LOG  ORIGIN: https://github.com/rsvp/speedtest-linux 
+#  2017-03-06  Upstream deprecates speedtest-cli.py in favor of speedtest.py
 #  2016-01-18  Fix issue #2 by using $HOME instead of /home/${USER} for logdir.
 #                 @oeolartep: $USER was unbound variable in cron jobs.
 #  2015-03-19  Second argument names log file. Directory's existence tested.
@@ -103,7 +103,7 @@ logf="$logdir/$arg2"
 
 #  Relying on a STATIC LOCAL VERSION may get outdated, so
 #  DOWNLOAD and execute LATEST PRIMARY VERSION of speedtest-cli.py:
-source='https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest_cli.py'
+source='https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py'
 #  If @sivel disappears for any reason, try mirror @rsvp.
 #
 #  Retrieve source and place it in memory with execute permission:

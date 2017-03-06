@@ -24,8 +24,7 @@ ______________|  speedtest : ping, download and upload speeds.
                  $ speedtest --log  #  Will cat logfile with latest result.
 
   Dependencies:  curl (Used to download the following Python script:)
-                 speedtest-cli.py ( https://github.com/sivel/speedtest-cli )
-                               ^tested on Python versions 2.4 through 3.4. 
+                 speedtest.py ( https://github.com/sivel/speedtest-cli )
 ```
 
 ## fasttest
