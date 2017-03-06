@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2017-03-06
+#
+# _______________|  fasttest :  download speed in Mbps, optional to log results.
+#                               Uses Netflix's fast.com resources,
+#                               checking via both IPv4 and IPv6.
+#                               This standalone script is a wrapper. 
+#
+#           Usage:  fasttest [--log|--verbose]
+#
+#                   Takes about a minute for results to appear.
+#                   For logfile, directory variable $logdir should be modified.
+#
+#        Examples:  $ fasttest   #  No args for single line timestamped.
+#                   2017-03-06, 19:25, 22.602
+#
+#                   $ fasttest --log  #  Will cat logfile with latest result.
+#
+#                   $ fasttest --log tmp.log  #  else default: fasttest.log
+#
+#    Dependencies:  curl [ Used to download the following Python script: ]
+#                   fast_com.py ( https://github.com/sanderjo/fast.com )
+#                   python2 (Our script should work under bash regardless.)
+#                   grep, awk
+#
+#  CHANGE LOG  ORIGIN: https://github.com/rsvp/speedtest-linux 
+#  2017-03-06  First version uses speedtest 2016-01-18 as template. 
+#                 This script ALWAYS retrieves the latest dependent code.
+#                 Currently it's ded23e4 on Jun 4, 2016 from primary source.
+
+
+#           _____ PREAMBLE_v3: settings, variables, and error handling.
+#
+LC_ALL=POSIX
+#      locale means "ASCII, US English, no special rules, 
+#      output per ISO and RFC standards." 
+#      Esp. use ASCII encoding for glob and sorting characters. 
+shopt -s   extglob
+#     ^set extended glob for pattern matching.
+shopt -s   failglob
+#         ^failed pattern matching signals error.
+set -e
+#   ^errors checked: immediate exit if a command has non-zero status. 
+set -o pipefail
+#   ^exit status on fail within pipe, not (default) last command.
+set -u
+#   ^unassigned variables shall be errors.
+#    Example of default VARIABLE ASSIGNMENT:  arg1=${1:-'foo'}
+
+arg1=${1:-'NULL'}
+arg2=${2:-'fasttest.log'}
+#         ^default name for logfile, see $logf below.
+
+program=${0##*/}   #  similar to using basename
+memf=$( mktemp /dev/shm/88_${program}_tmp.XXXXXXXXXX )
+mem2=$( mktemp /dev/shm/88_${program}_tmp.XXXXXXXXXX )
+errf=$( mktemp /dev/shm/88_${program}_tmp.XXXXXXXXXX )
+
+
+cleanup () {
+     #  Delete temporary files, then optionally exit given status.
+     local status=${1:-'0'}
+     rm -f  $memf $mem2 $errf
+     [ $status = '-1' ] ||  exit $status      #  thus -1 prevents exit.
+} #--------------------------------------------------------------------
+warn () {
+     #  Message with basename to stderr.          Usage: warn "message"
+     echo -e "\n !!  ${program}: $1 "  >&2
+} #--------------------------------------------------------------------
+die () {
+     #  Exit with status of most recent command or custom status, after
+     #  cleanup and warn.      Usage: command || die "message" [status]
+     local status=${2:-"$?"}
+     cat $errf >&2
+     cleanup -1  &&   warn "$1"  &&  exit $status
+} #--------------------------------------------------------------------
+trap "die 'SIG disruption: but finish needs about one minute.' 114" 1 2 3 15
+#    Cleanup after INTERRUPT: 1=SIGHUP, 2=SIGINT, 3=SIGQUIT, 15=SIGTERM
+trap "die 'unhandled ERR via trap, but cleanup finished.' 116" ERR
+#    Cleanup after command failure unless it's part of a test clause.
+#
+# _______________     ::  BEGIN  Script ::::::::::::::::::::::::::::::::::::::::
+
+
+logdir="$HOME/var/log/net"
+#      ^RENAME log directory for your personal use; for --log option.
+
+[ -d "$logdir" ]  ||  mkdir -p "$logdir"  ||  die "fail creating $logdir" 117
+#  Check directory's existence, else create it.
+
+logf="$logdir/$arg2"
+#     Suggested first line HEADER for CSV: Date, Time, DownMbps
+
+
+#  Relying on a STATIC LOCAL VERSION may get outdated, so
+#  DOWNLOAD and execute LATEST PRIMARY VERSION of speedtest-cli.py:
+source='https://raw.githubusercontent.com/sanderjo/fast.com/master/fast_com.py'
+#  If @sanderjo disappears for any reason, try mirror @rsvp.
+#
+#  Retrieve source and place it in memory with execute permission:
+curl -kL --silent $source  >  $memf  \
+     ||  die "curl unable to retrieve $program source code."  113
+chmod 755 $memf
+#  ___ATTN___ Their header is "#!/usr/bin/env python"
+#             but the code is only python2 compatible, so use fast_verbose:
+
+
+fast_verbose () {
+     #  Get the verbose output for "without logging", IPv4, and IPv6
+     python2 $memf
+     #  Primary code base is not python3 compatible.
+}
+
+
+fast_average () {
+     #  Use awk to average the numbers from verbose (in Mbps):
+     fast_verbose | grep '^[0-9]' > $mem2
+     #  ... only reasonable way to parse verbose: save just the numbers.
+     awk -f - $mem2 <<EOHereDoc
+     { sumrate += \$1 }
+     END { if (NR !=0)
+            { print sumrate/NR }
+           else
+              print " ::  fasttest FAILED to average." > "/dev/stderr" } 
+EOHereDoc
+}
+
+
+timestamped () {
+     #  Get time, then put into CSV format:
+     epoch="$( date '+%Y-%m-%d, %H:%M' )" 
+     speeds="$( fast_average )"
+     #      ^just a single real number: download speed in Mbps
+     echo "$epoch, $speeds"
+     #  Sample result:  "2017-03-06, 19:25, 22.602"
+}
+
+
+
+case "$arg1" in 
+       NULL)  timestamped                                                     ;;
+      --log)  timestamped >> "$logf"  &&  cat "$logf"                         ;;
+
+  --verbose)  fast_verbose                                                    ;;
+
+  --default)  echo "Default log directory: $logdir "
+              echo "Default log file:      $arg2 "                            ;;
+
+          *)  die "undefined arg: $arg1"  115                                 ;;
+esac
+
+
+
+cleanup    #  Instead of: trap arg EXIT
+# _______________ EOS ::  END of Script ::::::::::::::::::::::::::::::::::::::::
+
+#  vim: set fileencoding=utf-8 ff=unix tw=78 ai syn=sh :
