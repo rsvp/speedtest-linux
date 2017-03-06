@@ -1,8 +1,10 @@
 # speedtest-linux
-Download and upload speeds via speedtest.net from the Linux command line, suitable for logs. 
+
+Get download / upload speeds via speedtest.net or fast.com 
+from the Linux command line using bash script -- suitable for logs.
 
 ```
-_______________|  speedtest : ping, download and upload speeds.
+______________|  speedtest : ping, download and upload speeds.
                               Commandline using speedtest.net resources.
                               This standalone script is a wrapper. 
                                         
@@ -21,16 +23,35 @@ _______________|  speedtest : ping, download and upload speeds.
 
                  $ speedtest --log  #  Will cat logfile with latest result.
 
-
-  Dependencies:  curl [ Used to download the following Python script: ]
+  Dependencies:  curl (Used to download the following Python script:)
                  speedtest-cli.py ( https://github.com/sivel/speedtest-cli )
                                ^tested on Python versions 2.4 through 3.4. 
-
-CHANGE LOG  ORIGIN: https://github.com/rsvp/speedtest-linux 
-2015-03-17  Clarify some comments.
-2015-03-13  This script ALWAYS retrieves the latest dependent code.
-               Currently it is version 0.3.2 from the primary source.
-
 ```
 
+## fasttest
+
+Download speed via fast.com from the Linux command line, suitable for logs. 
+
+```
+______________|  fasttest : download speed in Mbps, optional to log results.
+                             Uses Netflix's fast.com resources,
+                             checking via both IPv4 and IPv6.
+                             This standalone script is a wrapper. 
+
+         Usage:  fasttest [--log|--verbose]
+
+                 Takes about a minute for results to appear.
+                 For logfile, directory variable $logdir should be modified.
+
+      Examples:  $ fasttest   #  No args for single line timestamped.
+                 2017-03-06, 19:25, 22.602
+
+                 $ fasttest --log  #  Will cat logfile with latest result.
+
+                 $ fasttest --log tmp.log  #  else default: fasttest.log
+
+  Dependencies:  curl (Used to download the following Python script:)
+                 fast_com.py ( https://github.com/sanderjo/fast.com )
+
+```
 
