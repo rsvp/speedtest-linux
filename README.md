@@ -69,3 +69,9 @@ ______________|  fasttest : download speed in Mbps, flag to log results.
 Many thanks to the developers upstream: @sivel and @sanderjo -- 
 we rely on their latest updates to the Python source code.
 
+Shortcut to our project: https://git.io/speed
+
+---
+
+README.md update : 2017-03-06
+
