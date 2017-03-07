@@ -55,7 +55,7 @@ ______________|  fasttest : download speed in Mbps, flag to log results.
                  For logfile, directory variable $logdir should be modified.
 
       Examples:  $ fasttest   #  No args for single line timestamped.
-                 2017-03-06, 19:25, 22.602
+                 2017-03-06, 19:25, None, 0.62, None
 
                  $ fasttest --log  #  Will cat logfile with latest result.
 

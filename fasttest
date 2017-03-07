@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2017-03-06
+#              bash 4.3.11(1)     Linux Ubuntu 14.04.1        Date : 2017-03-07
 #
-# _______________|  fasttest :  download speed in Mbps, optional to log results.
-#                               Uses Netflix's fast.com resources,
-#                               checking via both IPv4 and IPv6.
-#                               This standalone script is a wrapper. 
+# _______________|  fasttest : download speed in Mbps, flag to log results.
+#                              Uses Netflix's fast.com resources,
+#                              checking via both IPv4 and IPv6.
+#                              This standalone script is a wrapper. 
 #
 #           Usage:  fasttest [--log|--verbose]
 #
@@ -12,7 +12,7 @@
 #                   For logfile, directory variable $logdir should be modified.
 #
 #        Examples:  $ fasttest   #  No args for single line timestamped.
-#                   2017-03-06, 19:25, 22.602
+#                   2017-03-06, 19:25, None, 0.62, None
 #
 #                   $ fasttest --log  #  Will cat logfile with latest result.
 #
@@ -24,6 +24,10 @@
 #                   grep, awk
 #
 #  CHANGE LOG  ORIGIN: https://github.com/rsvp/speedtest-linux 
+#  2017-03-07  Use maximum from verbose results, not the average
+#                 (though it's still available using --average flag).
+#                 Change log format to match that of speedtest, 
+#                 thus "None" for both ping and upload stats.
 #  2017-03-06  First version uses speedtest 2016-01-18 as template. 
 #                 This script ALWAYS retrieves the latest dependent code.
 #                 Currently it's ded23e4 on Jun 4, 2016 from primary source.
@@ -107,7 +111,7 @@ chmod 755 $memf
 
 fast_verbose () {
      #  Get the verbose output for "without logging", IPv4, and IPv6
-     python2 $memf
+     python2 $memf 2> $errf
      #  Primary code base is not python3 compatible.
 }
 
@@ -121,7 +125,28 @@ fast_average () {
      END { if (NR !=0)
             { print sumrate/NR }
            else
-              print " ::  fasttest FAILED to average." > "/dev/stderr" } 
+              print " ::  fasttest FAIL: nothing to average." > "/dev/stderr" }
+EOHereDoc
+}
+
+#  2017-03-07  The flag --verbose will show all protocols being tested.
+#              Some may indicate 0 Mbps depending on the user's situation.
+#              In that case, the average will be unnecessarily dragged
+#              lower, so the MAXIMUM among protocols will be our
+#              default metric. (The flag --average is available though.)
+
+
+fast_maximum () {
+     #  Use awk to find maximum from verbose (in Mbps):
+     fast_verbose | grep '^[0-9]' > $mem2
+     #  ... only reasonable way to parse verbose: save just the numbers.
+     awk -f - $mem2 <<EOHereDoc
+     BEGIN { max = 0 }
+     { if (\$1 > max) { max = \$1 }}
+     END { if (NR !=0)
+            { print max }
+           else
+              print " ::  fasttest FAIL: nothing to maximize." > "/dev/stderr" }
 EOHereDoc
 }
 
@@ -129,10 +154,11 @@ EOHereDoc
 timestamped () {
      #  Get time, then put into CSV format:
      epoch="$( date '+%Y-%m-%d, %H:%M' )" 
-     speeds="$( fast_average )"
+     speeds="$( fast_maximum )"
      #      ^just a single real number: download speed in Mbps
-     echo "$epoch, $speeds"
-     #  Sample result:  "2017-03-06, 19:25, 22.602"
+     echo "$epoch, None, $speeds, None"
+     #             ^compatible with speedtest format: ping, download, upload.
+     #  Sample result:  "2017-03-06, 19:25, None, 0.62, None"
 }
 
 
@@ -142,6 +168,7 @@ case "$arg1" in
       --log)  timestamped >> "$logf"  &&  cat "$logf"                         ;;
 
   --verbose)  fast_verbose                                                    ;;
+  --average)  fast_average                                                    ;;
 
   --default)  echo "Default log directory: $logdir "
               echo "Default log file:      $arg2 "                            ;;
