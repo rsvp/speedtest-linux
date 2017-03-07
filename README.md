@@ -1,12 +1,20 @@
 # speedtest-linux
 
-Get download / upload speeds via speedtest.net or fast.com 
-from the Linux command line using bash script -- suitable for logs.
+From the command line get ping/download/upload stats:
+
+- from https://speedtest.net or https://fast.com
+- *without* their ads
+- *without* their web GUI interface
+- simply **timestamped** in one-line CSV format
+- suitable for logs
+- using **Bash** shell script
+- for all POSIX systems
+
 
 ```
 ______________|  speedtest : ping, download and upload speeds.
-                              Commandline using speedtest.net resources.
-                              This standalone script is a wrapper. 
+                             Commandline using speedtest.net resources.
+                             This standalone script is a wrapper. 
                                         
          Usage:  speedtest [--log|--simple|--verbose|--list|--fav|--version]
 
@@ -24,18 +32,22 @@ ______________|  speedtest : ping, download and upload speeds.
                  $ speedtest --log  #  Will cat logfile with latest result.
 
   Dependencies:  curl (Used to download the following Python script:)
-                 speedtest.py ( https://github.com/sivel/speedtest-cli )
+                 speedtest.py (https://github.com/sivel/speedtest-cli)
 ```
+
 
 ## fasttest
 
-Download speed via fast.com from the Linux command line, suitable for logs. 
+Get just the download speed via fast.com from the command line,
+suitable for logs. The infrastructure is provided by Netflix
+to make sure ISPs are not throttling their streaming movies.
+
 
 ```
-______________|  fasttest : download speed in Mbps, optional to log results.
-                             Uses Netflix's fast.com resources,
-                             checking via both IPv4 and IPv6.
-                             This standalone script is a wrapper. 
+______________|  fasttest : download speed in Mbps, flag to log results. 
+                            Uses Netflix's fast.com resources,
+                            checking via both IPv4 and IPv6.
+                            This standalone script is a wrapper. 
 
          Usage:  fasttest [--log|--verbose]
 
@@ -50,7 +62,10 @@ ______________|  fasttest : download speed in Mbps, optional to log results.
                  $ fasttest --log tmp.log  #  else default: fasttest.log
 
   Dependencies:  curl (Used to download the following Python script:)
-                 fast_com.py ( https://github.com/sanderjo/fast.com )
-
+                 fast_com.py (https://github.com/sanderjo/fast.com)
 ```
+
+
+Many thanks to the developers upstream: @sivel and @sanderjo -- 
+we rely on their latest updates to the Python source code.
 
