@@ -4,7 +4,7 @@ From the command line get ping/download/upload stats:
 
 - from https://speedtest.net or https://fast.com
 - *without* their ads
-- *without* their web GUI interface
+- *without* their web GUI or app interface
 - simply **timestamped** in one-line CSV format
 - suitable for logs
 - using **Bash** shell script
@@ -66,12 +66,42 @@ ______________|  fasttest : download speed in Mbps, flag to log results.
 ```
 
 
+## Comparison 
+
+For execution time, speedtest runs about 60% faster than fasttest.
+In terms of information, speedtest provides more than fasttest,
+and is more accurate in measuring download speed.
+The code base for speedtest is more mature and receives more 
+support and scrutiny, compared to that of fasttest.
+
+
+## Magic one-liner
+
+Given our preferred choice: **speedtest** -- here is a way to directly
+access its service without cloning our repository:
+
+```
+$ echo "$(curl -skLO https://git.io/speedtest.sh && chmod +x speedtest.sh && ./speedtest.sh)"
+2015-03-13, 19:25, 22.602, 0.62, 0.25
+```
+
+The curl command retrieves the most current version of speedtest, 
+renamed for this exercise as *speedtest.sh*, then we execute it to
+display: *date*, local *time*, *ping* in milliseconds, followed by
+*download* and *upload* speeds in Mbps (Megabits per second).
+
+To fine-tune the logging functions, please fork our repository.
+
+
+## Acknowledgements
+
 Many thanks to the developers upstream: @sivel and @sanderjo -- 
 we rely on their latest updates to the Python source code.
 
-Shortcut to our project: https://git.io/speed
+Shortcut to this project: https://git.io/speed
+
 
 ---
 
-README.md update : 2017-03-06
+README.md update : 2017-03-09
 
