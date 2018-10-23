@@ -58,15 +58,15 @@ arg2=${2:-'speedtest.log'}
 #         ^default name for logfile, see $logf below.
 
 program=${0##*/}   #  similar to using basename
-memf=$( mktemp /dev/shm/88_${program}_tmp.XXXXXXXXXX )
-errf=$( mktemp /dev/shm/88_${program}_tmp.XXXXXXXXXX )
+memf=$( mktemp "/dev/shm/88_${program}_tmp.XXXXXXXXXX")
+errf=$( mktemp "/dev/shm/88_${program}_tmp.XXXXXXXXXX")
 
 
 cleanup () {
      #  Delete temporary files, then optionally exit given status.
      local status=${1:-'0'}
-     rm -f  $memf $errf
-     [ $status = '-1' ] ||  exit $status      #  thus -1 prevents exit.
+     rm -f  "memf $errf"
+     [ "$status" = '-1' ] ||  exit "$status"      #  thus -1 prevents exit.
 } #--------------------------------------------------------------------
 warn () {
      #  Message with basename to stderr.          Usage: warn "message"
@@ -76,8 +76,8 @@ die () {
      #  Exit with status of most recent command or custom status, after
      #  cleanup and warn.      Usage: command || die "message" [status]
      local status=${2:-"$?"}
-     cat $errf >&2
-     cleanup -1  &&   warn "$1"  &&  exit $status
+     cat "$errf" >&2
+     cleanup -1  &&   warn "$1"  &&  exit "$status"
 } #--------------------------------------------------------------------
 trap "die 'SIG disruption: but finish needs about one minute.' 114" 1 2 3 15
 #    Cleanup after INTERRUPT: 1=SIGHUP, 2=SIGINT, 3=SIGQUIT, 15=SIGTERM
@@ -107,20 +107,21 @@ source='https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.p
 #  If @sivel disappears for any reason, try mirror @rsvp.
 #
 #  Retrieve source and place it in memory with execute permission:
-curl -kL --silent $source  >  $memf  \
+curl -kL --silent $source  >  "$memf"  \
      ||  die "curl unable to retrieve $program source code."  113
-chmod 755 $memf
+chmod 755 "$memf"
 
 
 timestamped () {
      #  Get time, then --simple in one line, finally combine into CSV format.
      epoch="$( date '+%Y-%m-%d, %H:%M' )" 
-     speeds="$( echo $( $memf --simple | sed -e 's/^.*: //' -e 's/ .*s$/, /' ))"
+     speeds="$( $memf --simple | sed -e 's/^.*: //' -e 's/ .*s$/, /' | \
+		sed -e ':a' -e 'N' -e '$!ba' -e 's/\n//g' )"
      #      ^on a single line: ping, download, upload speeds -- given output:
      #                   Ping: 22.602 ms
      #                   Download: 0.62 Mbit/s
      #                   Upload: 0.25 Mbit/s
-     echo "$epoch, $speeds"  |  sed -e 's/,$//'
+     echo "$epoch, $speeds"  |  sed -e 's/, $//'
      #  Sample result:  "2015-03-13, 19:25, 22.602, 0.62, 0.25"
 }
 
