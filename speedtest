@@ -58,9 +58,8 @@ arg2=${2:-'speedtest.log'}
 #         ^default name for logfile, see $logf below.
 
 program=${0##*/}   #  similar to using basename
-memf=$( mktemp /dev/shm/88_${program}_tmp.XXXXXXXXXX )
-errf=$( mktemp /dev/shm/88_${program}_tmp.XXXXXXXXXX )
-
+memf=$( mktemp 2>/dev/null || mktemp -t 88_${program}_tmp.XXXXXXXXXX )
+errf=$( mktemp 2>/dev/null || mktemp -t 88_${program}_tmp.XXXXXXXXXX )
 
 cleanup () {
      #  Delete temporary files, then optionally exit given status.
